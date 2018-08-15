@@ -1,0 +1,210 @@
+// Land.cpp: определяет точку входа для консольного приложения.
+//
+
+#include "stdafx.h"
+#include <malloc.h>
+#include <string>
+#define N 10007
+int well(int x, int y, char** Map, int** My_Map, int count, int len)
+{
+    //printf("well(%d, %d)\n", x, y);
+    if ((x >= 0) && (x < count) && (y >= 0) && (y < len))
+    {
+   	 //printf("checked\n");
+   	 if (Map[x][y] == '#' || My_Map[x][y] == 1)
+   	 {
+   		 return 0;
+   	 }
+    }
+
+    if ((x > 0) && (y >= 0) && (y < len))
+    {
+   	 //printf("1 ");
+   	 if (Map[x - 1][y] == '#')
+   		 return 1;
+    }
+    if ((x < count - 1) && (y >= 0) && (y < len))
+    {
+
+   	 //printf("2 ");
+   	 if (Map[x + 1][y] == '#')
+   		 return 1;
+    }
+    if ((y > 0) && (x >= 0) && (x < count))
+    {
+
+   	 //printf("3 ");
+   	 if (Map[x][y - 1] == '#')
+   		 return 1;
+    }
+    if ((y < len - 1) && (x >= 0) && (x < count))
+    {
+
+   	 //printf("4 ");
+   	 if (Map[x][y + 1] == '#')
+   		 return 1;
+    }
+
+    if (x > 0 && y > 0)
+    {
+
+   	 //printf("5 ");
+   	 if (Map[x - 1][y - 1] == '#')
+   		 return 1;
+    }
+    if (x > 0 && y < len - 1)
+    {
+
+   		//printf("6 ");
+   		if (Map[x - 1][y + 1] == '#')
+   			 return 1;
+    }
+    if (x < count - 1 && y > 0)
+    {
+
+   		//printf("7 ");
+   		if (Map[x + 1][y - 1] == '#')
+   			return 1;
+    }
+    if (x < count - 1 && y < len - 1)
+    {
+
+   	 //printf("8 ");
+   		if (Map[x + 1][y + 1] == '#')
+   			return 1;
+    }
+    return 0;
+}
+void go(int x, int y, char** Map, int** My_Map, int count, int len)
+{
+    int went1 = 0, went2 = 0, went3 = 0, went4 = 0;
+    printf("(%d, %d) ", x, y);
+    My_Map[x][y] = 1;
+    if (well(x + 1, y, Map, My_Map, count, len))
+    {
+   		go(x + 1, y, Map, My_Map, count, len);
+   		went1++;
+    }
+	
+    if (went1)
+    {
+   		printf("(%d, %d) ", x, y);
+    }
+    if (well(x - 1, y, Map, My_Map, count, len))
+    {
+   		go(x - 1, y, Map, My_Map, count, len);
+   		went2++;
+    }
+	
+    if (went2)
+    {
+   		printf("(%d, %d) ", x, y);
+    }
+    if (well(x, y + 1, Map, My_Map, count, len))
+    {
+   		go(x, y + 1, Map, My_Map, count, len);
+   		went3++;
+    }
+    if (went3)
+    {
+   		printf("(%d, %d) ", x, y);
+    }
+    if (well(x, y - 1, Map, My_Map, count, len))
+    {
+   		go(x, y - 1, Map, My_Map, count, len);
+   		went4++;
+    }
+    if (went4)
+    {
+   		printf("(%d, %d) ", x, y);
+    }
+}
+int main()
+{
+    FILE* f, *f2;
+    char name[100];
+    int i, flag = 0, x = 1, y = 1, count = 0, len, j;
+    char** Map = NULL;
+    char S[N];
+    char S1[N];
+    int** My_Map = NULL;
+    printf("Input file name\n");
+    scanf(" ");
+    gets_s(name);
+    f = fopen(name, "rt");
+    f2 = fopen(name, "rt");
+    fseek(f2, -1, SEEK_END);
+    while (ftell(f) < ftell(f2))
+    {
+   		fgets(S, N, f);
+   		count++;
+   		printf("S = ");
+   		puts(S);
+   		Map = (char**)realloc(Map, count * sizeof(char*));
+   		Map[count - 1] = (char*)malloc(strlen(S) * sizeof(char));
+   		strcpy(Map[count - 1], S);
+    }
+	len = strlen(Map[0]) - 1;
+    My_Map = (int**)malloc(count * sizeof(int*));
+    for (i = 0; i < count; ++i)
+    {
+   		My_Map[i] = (int*)malloc(len * sizeof(int));
+   		for (j = 0; j < len; ++j)
+   		{
+   			 My_Map[i][j] = 0;
+   		}
+    }
+    while (!flag && x < count - 1)
+    {
+   		y = 0;
+   		while (!flag && y < len - 1)
+   		{
+
+			if (Map[x][y + 1] == '#')
+   			{
+   				 flag = 1;
+   			}
+   			else
+   			{
+   				y++;
+   			}
+   		}
+   		if (!flag)
+   			x++;
+    }
+    printf("len = %d\n", len);
+    printf("count = %d\n", count);
+    if (x == len)
+    {
+   	 printf("No land\n");
+   	 return 0;
+    }
+    else
+    {
+		printf("(%d, %d) ", x, y);
+   		My_Map[x][y] = 1;
+		if (well(x + 1, y, Map, My_Map, count, len))
+		{
+   			go(x + 1, y, Map, My_Map, count, len);
+		}
+		if (well(x - 1, y, Map, My_Map, count, len))
+		{
+   			go(x - 1, y, Map, My_Map, count, len);
+		}
+		if (well(x, y + 1, Map, My_Map, count, len))
+		{
+   			go(x, y + 1, Map, My_Map, count, len);
+		}
+		if (well(x, y - 1, Map, My_Map, count, len))
+		{
+   			go(x, y - 1, Map, My_Map, count, len);
+		}
+    }
+    fclose(f);
+    fclose(f2);
+    return 0;
+}
+
+
+
+
